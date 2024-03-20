@@ -1,6 +1,9 @@
 package com.mybot.commands;
 
 import com.mybot.ICommand;
+import net.dv8tion.jda.api.entities.GuildWelcomeScreen;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -31,14 +34,18 @@ public class Clean implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
+        MessageChannel channel = event.getChannel();
         OptionMapping command = event.getOption("line");
+        if (command == null) {
+            event.reply("삭제할 줄수를 다시 실행해주세요");
+            return;
+        }
         int line = command.getAsInt();
 
-        int resultInt = 0;
-        String resultString = "에러발생";
-        if (resultInt > 0) {
-            resultString = "삭제가 완료되었습니다";
-        }
-        event.reply(resultString).queue();
+        channel.getHistory()
+                .retrievePast(line)
+                .queue(messages -> {channel.purgeMessages(messages);
+                channel.sendMessage("채팅창을 청소했습니다").queue();
+                });
     }
 }

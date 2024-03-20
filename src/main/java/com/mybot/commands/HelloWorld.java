@@ -7,15 +7,15 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestCommand1 implements ICommand {
+public class HelloWorld implements ICommand {
     @Override
     public String getName() {
-        return "testcommand";
+        return "helloworld";
     }
 
     @Override
     public String getDescription() {
-        return "테스트 커멘드 1입니다";
+        return "Hello World 라고 답장합니다.";
     }
 
     @Override
@@ -26,6 +26,6 @@ public class TestCommand1 implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        event.reply("테스트 커멘드 1입니다").queue();
+        event.reply("Hello World!").queue();
     }
 }

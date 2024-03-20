@@ -1,57 +1,117 @@
 package com.mybot.listeners;
 
+import com.mybot.ICommand;
+import io.github.cdimascio.dotenv.Dotenv;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class EventListeners extends ListenerAdapter {
 
-    //채팅리엑션 이모지 리스너
+    /**
+     * 메시지 반응이모지 리스너
+     */
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
-        //TechnoVision reacted to a message with "따봉" in th Test
         User user = event.getUser();
         String emoji = event.getReaction().getEmoji().getAsReactionCode();
         String channelMention = event.getChannel().getAsMention();
         String jumpLink = event.getJumpUrl();
         assert user != null;
-        String message = user.getAsTag() + "reacted to a message with " +emoji +  "in the " + channelMention + "channel!";
-        event.getGuild().getDefaultChannel().asTextChannel().sendMessage(message).queue();
+        String message = user.getAsMention() + "reacted to a message with " + emoji + "in the " + channelMention + "channel!";
+        Objects.requireNonNull(event.getGuild().getDefaultChannel()).asTextChannel().sendMessage(message).queue();
 
     }
-    //채널에 메시지 수신리스너
+
+    /**
+     * 텍스트채널 메시지 수신리스너
+     * 봇의 메시지일 경우 무시한다.
+     * 이벤트가 발생한 채널에 메시지를 회신한다.
+     */
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        //봇채팅 무시
         if (event.getAuthor().isBot()) return;
         String message = event.getMessage().getContentRaw();
-        event.getChannel().sendMessage("pong").queue();
-
+        if (message.contains("ping")) {
+            event.getChannel().sendMessage("pong2").queue();
+        }
     }
-    //서버에 사람들어왔을때
+    /**
+     * 서버 입장 리스너
+     */
+    //
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
         User user = event.getUser();
-        // 이벤트가 발생한 서버의 텍스트채널을 모두 받아와서 그중에 아무거나 존재한다면 텍스트채널에 메시지를 전송
-//        event.getGuild().getTextChannels()
-//                .stream().findAny().ifPresent(
-//                        textChannel -> textChannel.sendMessage("hi "+user).queue()
-//                );
-// 대표 텍스트 채널에 메시지를 전송
-        String message = "hi "+user;
-        event.getGuild().getDefaultChannel().asTextChannel().sendMessage(message).queue();
+        String message = "hi " + user;
+        Objects.requireNonNull(event.getGuild().getDefaultChannel()).asTextChannel().sendMessage(message).queue();
     }
 
-    //온라인인 유저의 메시지 열람
+    /**
+     * 온라인으로 전환한 유저 리스너
+     */
     @Override
     public void onUserUpdateOnlineStatus(@NotNull UserUpdateOnlineStatusEvent event) {
-        User user = event.getUser();
-        String message = " ** " + user.getAsMention() + "** updated their online status!";
-        event.getGuild().getDefaultChannel().asTextChannel().sendMessage(message).queue();
+        Dotenv config = Dotenv.configure().load();
+        String USER_ID = config.get("USER_ID");
+
+        //Requires cache
+        User user = event.getJDA().getUserById(USER_ID);
+        //  Member member = event.getGuild().getMemberById(USER_ID);
+
+        //does not require cache requires rest action
+        //event.getJDA().retrieveUserById(USER_ID).queue(user->{
+            /*...*/
+        //     });
+
+        //event.getGuild().retrieveMemberById(USER_ID).queue();
+
+//complete 비추천 (완료될떄까지 멈춤)
+        List<Member> members = event.getGuild().getMembers();
+        int onlineMember = 0;
+        for (Member member : members){
+            if(member.getOnlineStatus()== OnlineStatus.ONLINE){
+                ++onlineMember;
+            }
+        }
+        String userState = changeStateKr(event.getNewOnlineStatus().getKey());
+        String message = " ** " + user.getName() + "** 님께서 "+userState+ "상태로 변경하셨습니다"+ "현재 온라인 유저는 "+onlineMember+"명 입니다";
+
+        Objects.requireNonNull(event.getGuild().getDefaultChannel()).asTextChannel().sendMessage(message).queue();
+    }
+
+    private String changeStateKr(String key) {
+        switch (key) {
+            case "offline":
+                key= "오프라인";
+                break;
+            case "online":
+                key= "온라인";
+                break;
+            case "idle":
+                key= "자리비움";
+                break;
+            case "dnd":
+                key= "방해금지";
+                break;
+            default:
+                break;
+        }
+        return key;
     }
 }

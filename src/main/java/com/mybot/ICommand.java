@@ -14,6 +14,4 @@ public interface ICommand {
 
     void execute(SlashCommandInteractionEvent event);
 
-
-
 }
