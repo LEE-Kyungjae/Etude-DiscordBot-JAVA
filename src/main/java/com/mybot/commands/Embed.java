@@ -24,28 +24,12 @@ public class Embed implements ICommand {
     @Override
     public List<OptionData> getOptions() {
         List<OptionData> data = new ArrayList<>();
-        data.add(new OptionData(OptionType.STRING, "title", "", false)
-                .setMinValue(1)
-                .setMaxValue(10000));
-        data.add(new OptionData(OptionType.STRING, "Description", "", false)
-                .setMinValue(1)
-                .setMaxValue(10000));
-        data.add(new OptionData(OptionType.INTEGER, "field num", "", false)
-                .setMinValue(1)
-                .setMaxValue(10000));
-        data.add(new OptionData(OptionType.STRING, "field", "", false)
-                .setMinValue(1)
-                .setMaxValue(10000));
-
-        data.add(new OptionData(OptionType.STRING, "setColor", "", false)
-                .setMinValue(1)
-                .setMaxValue(10000));
-
-        data.add(new OptionData(OptionType.STRING, "setFooter", "", false)
-                .setMinValue(1)
-                .setMaxValue(10000));
-
-
+        /*data.add(new OptionData(OptionType.STRING, "title", "title", true));
+        data.add(new OptionData(OptionType.STRING, "Description", "Description", true));
+        data.add(new OptionData(OptionType.INTEGER, "fieldnum", "fieldnum", true));
+        data.add(new OptionData(OptionType.STRING, "field", "field", true));
+        data.add(new OptionData(OptionType.STRING, "setColor", "setColor", true));
+        data.add(new OptionData(OptionType.STRING, "setFooter", "setFooter", true));*/
         return data;
     }
 
@@ -53,15 +37,13 @@ public class Embed implements ICommand {
     public void execute(SlashCommandInteractionEvent event) {
 
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("asd");
+        /*builder.setTitle("asd");
         builder.setDescription("asd");
-        builder.addField("asd","a",true);
-        builder.addField("asd","a",true);
         builder.addField("asd","a",true);
         builder.setFooter("asd");
         builder.setColor(Color.BLUE);
         builder.appendDescription("this has been added");
-        builder.setAuthor("asd");
+        builder.setAuthor("asd");*/
         event.replyEmbeds(builder.build()).queue();
 
     }
