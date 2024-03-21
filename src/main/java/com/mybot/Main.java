@@ -4,7 +4,6 @@ import com.mybot.commands.*;
 import com.mybot.listeners.CommandManager;
 import com.mybot.listeners.EventListeners;
 import io.github.cdimascio.dotenv.Dotenv;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -57,6 +56,8 @@ public class Main {
         manager.add(new Sum());
         manager.add(new TestCommand1());
         manager.add(new TestCommand2());
+        manager.add(new KickVoiceMember());
+        manager.add(new KickAllVoiceMember());
         shardManager.addEventListener(manager);
 
         EventListeners listeners = new EventListeners();
