@@ -54,10 +54,9 @@ public class Main {
         manager.add(new Embed());
         manager.add(new HelloWorld());
         manager.add(new Sum());
-        manager.add(new TestCommand1());
-        manager.add(new TestCommand2());
         manager.add(new KickVoiceMember());
         manager.add(new KickAllVoiceMember());
+        manager.add(new Embed());
         shardManager.addEventListener(manager);
 
         EventListeners listeners = new EventListeners();

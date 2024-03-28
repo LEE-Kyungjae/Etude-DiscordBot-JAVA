@@ -12,12 +12,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+
 public class KickVoiceMember implements ICommand {
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public String getName() {
-        return "vout";
+        return "out";
     }
 
     @Override
@@ -45,16 +46,20 @@ public class KickVoiceMember implements ICommand {
             return;
         }
         VoiceChannel voiceChannel = (VoiceChannel) member.getVoiceState().getChannel();
+
+        String nickname = member.getUser().getEffectiveName();
+
         if (voiceChannel == null) {
-            event.reply("죄수가 보이스 채널에 접속 중이 아닙니다.").queue();
+            event.reply(nickname +" 님! 보이스 채널에 접속 중이 아니에요! ").queue();
             return;
         }
-        event.deferReply().setContent("가 죄수를 찾는중이에요\n("+minute+"분후에 찾을예정)").queue(); // 응답 지연
+        event.deferReply().setContent(minute+"분후에 내보낼예정").queue(); // 응답 지연
         scheduler.schedule(() -> {
             member.getGuild().kickVoiceMember(member).queue(
-                    success -> event.getHook().sendMessage("찾았다 요놈 \"또각\"\n(보이스채널에있는 사용자를 내보냈습니다.)").queue(), // 응답 지연 해제
+                    success -> event.getHook().sendMessage("보이스채널에있는 사용자를 내보냈습니다.").queue(), // 응답 지연 해제
                     failure -> event.getHook().sendMessage("오류가 발생했습니다 아마 보이스채널에 없으신거같아요" + failure.getMessage()).queue() // 응답 지연 해제
-                    );
-        },minute, TimeUnit.SECONDS);
+            );
+        },minute, TimeUnit.MINUTES);
     }
 }
+

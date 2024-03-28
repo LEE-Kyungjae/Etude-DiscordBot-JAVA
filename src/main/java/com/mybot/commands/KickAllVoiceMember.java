@@ -11,15 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
+/**
+ * 커멘드를 사용하면 일정시간뒤에 접속한 보이스채널에 본인을포함한 멤버들을 모두 내보내는 커멘드
+ */
 public class KickAllVoiceMember implements ICommand {
-
+    private ScheduledFuture<?> scheduledTask;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public String getName() {
-        return "voutall";
+        return "outwith";
     }
 
     @Override
@@ -48,40 +51,55 @@ public class KickAllVoiceMember implements ICommand {
             event.reply("오류: 사용자 정보를 찾을 수 없습니다.").setEphemeral(true).queue();
             return;
         }
+        String nickname = member.getUser().getEffectiveName();
+
         VoiceChannel voiceChannel = (VoiceChannel) member.getVoiceState().getChannel();
         if (voiceChannel == null) {
-            event.reply("죄수가 보이스 채널에 접속 중이 아닙니다.").queue();
+            event.reply(nickname + "님! 보이스 채널에 접속 중이 아니에요!").queue();
             return;
         }
+
         List<Member> members = voiceChannel.getMembers();
 
-        event.deferReply().setContent("가 죄수 " + memberString(members) + "를 찾는중이에요\n(" + minute + "분후에 찾을예정)").queue(); // 응답 지연
-        scheduler.schedule(() -> {
+        event.deferReply().setContent(memberString(members) + "님을 " + minute + "분후에 내보낼예정").queue(); // 응답 지연
+        scheduledTask = scheduler.schedule(() -> {
             for (Member voice_member : members) {
-                member.getGuild().kickVoiceMember(member).queue(
-                        success -> event.getHook().sendMessage("찾았다 요놈들 \"또각\"\n(보이스채널에있는 모든사용자를 내보냈습니다.)").queue(), // 응답 지연 해제
-                        failure -> event.getHook().sendMessage("오류가 발생했습니다 아마 보이스채널에 없으신거같아요" + failure.getMessage()).queue() // 응답 지연 해제
-                );
+                if (voice_member.getVoiceState().getChannel().equals(event.getMember().getVoiceState().getChannel())) {
+                    voice_member.getGuild().kickVoiceMember(voice_member).queue(
+                            success -> event.getHook().sendMessage("보이스채널에있는 모든사용자를 내보냈습니다.").queue(), // 응답 지연 해제
+                            failure -> event.getHook().sendMessage("오류가 발생했습니다 아마 보이스채널에 없으신거같아요" + failure.getMessage()).queue() // 응답 지연 해제
+                    );
+                }
             }
-        }, minute, TimeUnit.SECONDS);
+        }, minute, TimeUnit.MINUTES);
     }
 
     private String memberString(List<Member> members) {
-        boolean cnt = false;
-        String result = "";
-        for (Member member : members) {
-            String nickname = member.getNickname();
-            if (nickname == null) {
-                nickname = member.getUser().getName(); // 기본 유저명 사용
-            }
-            if (cnt = false) {
-                result += nickname;
-            } else {
-                result += " " + nickname;
-            }
-            cnt = true;
+        if (members.isEmpty()) {
+            return "";
         }
-        result.replace(" ", ", ");
-        return result;
+
+        StringBuilder resultBuilder = new StringBuilder();
+        boolean isFirst = true;
+
+        for (Member member : members) {
+            String nickname = member.getUser().getEffectiveName();
+            if (isFirst) {
+                resultBuilder.append(nickname);
+                isFirst = false;
+            } else {
+                resultBuilder.append(", ").append(nickname);
+            }
+        }
+
+        return resultBuilder.toString();
+    }
+
+    public void setScheduledTask(ScheduledFuture<?> scheduledTask) {
+        this.scheduledTask = scheduledTask;
+    }
+
+    public ScheduledFuture<?> getScheduledTask() {
+        return scheduledTask;
     }
 }
