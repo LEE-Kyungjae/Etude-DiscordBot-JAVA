@@ -57,6 +57,7 @@ public class Main {
         manager.add(new KickVoiceMember());
         manager.add(new KickAllVoiceMember());
         manager.add(new Embed());
+        manager.add(new Lotto());
         shardManager.addEventListener(manager);
 
         EventListeners listeners = new EventListeners();
