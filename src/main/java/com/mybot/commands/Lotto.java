@@ -29,7 +29,7 @@ public class Lotto implements ICommand {
     @Override
     public void execute(SlashCommandInteractionEvent event) {
         String lottoNumbers = generateLottoNumbers();
-        event.reply("오늘의 추천 로또번호는 " + lottoNumbers + " 입니다").queue();
+        event.reply("추천 로또번호는 " + lottoNumbers + " 입니다").queue();
 
     }
 
