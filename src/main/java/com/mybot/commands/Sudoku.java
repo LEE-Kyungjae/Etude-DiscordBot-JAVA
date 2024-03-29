@@ -47,6 +47,7 @@ public class Sudoku implements ICommand {
 
     private String formatPuzzle(int[][] puzzle) {
         StringBuilder sb = new StringBuilder();
+        sb.append("\n");
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 sb.append(puzzle[i][j]);

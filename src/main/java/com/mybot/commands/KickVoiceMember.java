@@ -56,7 +56,7 @@ public class KickVoiceMember implements ICommand {
         event.deferReply().setContent(minute+"분후에 내보낼예정").queue(); // 응답 지연
         scheduler.schedule(() -> {
             member.getGuild().kickVoiceMember(member).queue(
-                    success -> event.getHook().sendMessage("보이스채널에있는 사용자를 내보냈습니다.").queue(), // 응답 지연 해제
+                    success -> event.getHook().sendMessage("보이스채널에있는 " + member.getEffectiveName() + "님을 내보냈습니다.").queue(), // 응답 지연 해제
                     failure -> event.getHook().sendMessage("오류가 발생했습니다 아마 보이스채널에 없으신거같아요" + failure.getMessage()).queue() // 응답 지연 해제
             );
         },minute, TimeUnit.MINUTES);

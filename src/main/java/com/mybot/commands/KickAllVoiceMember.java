@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -19,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class KickAllVoiceMember implements ICommand {
     private ScheduledFuture<?> scheduledTask;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
+ㅋ
     @Override
     public String getName() {
         return "outwith";
@@ -41,7 +42,7 @@ public class KickAllVoiceMember implements ICommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        int minute = Integer.parseInt(event.getOption("minute").getAsString());
+        int minute = Integer.parseInt(Objects.requireNonNull(event.getOption("minute")).getAsString());
         if (minute <= 0) {
             event.reply("시간은 양의 정수여야 합니다.").queue();
             return;
@@ -53,7 +54,7 @@ public class KickAllVoiceMember implements ICommand {
         }
         String nickname = member.getUser().getEffectiveName();
 
-        VoiceChannel voiceChannel = (VoiceChannel) member.getVoiceState().getChannel();
+        VoiceChannel voiceChannel = (VoiceChannel) Objects.requireNonNull(member.getVoiceState()).getChannel();
         if (voiceChannel == null) {
             event.reply(nickname + "님! 보이스 채널에 접속 중이 아니에요!").queue();
             return;
@@ -64,10 +65,10 @@ public class KickAllVoiceMember implements ICommand {
         event.deferReply().setContent(memberString(members) + "님을 " + minute + "분후에 내보낼예정").queue(); // 응답 지연
         scheduledTask = scheduler.schedule(() -> {
             for (Member voice_member : members) {
-                if (voice_member.getVoiceState().getChannel().equals(event.getMember().getVoiceState().getChannel())) {
+                if (Objects.equals(Objects.requireNonNull(voice_member.getVoiceState()).getChannel(), Objects.requireNonNull(event.getMember().getVoiceState()).getChannel())) {
                     voice_member.getGuild().kickVoiceMember(voice_member).queue(
-                            success -> event.getHook().sendMessage("보이스채널에있는 모든사용자를 내보냈습니다.").queue(), // 응답 지연 해제
-                            failure -> event.getHook().sendMessage("오류가 발생했습니다 아마 보이스채널에 없으신거같아요" + failure.getMessage()).queue() // 응답 지연 해제
+                            success -> Objects.requireNonNull(Objects.requireNonNull(event.getGuild()).getDefaultChannel()).asTextChannel().sendMessage("보이스채널에있는 " + voice_member.getEffectiveName() + "님을 내보냈습니다.").queue(),
+                            failure -> Objects.requireNonNull(Objects.requireNonNull(event.getGuild()).getDefaultChannel()).asTextChannel().sendMessage("오류가 발생했습니다 " + voice_member.getEffectiveName() + "님은 아마 보이스채널에 없으신거같아요" + failure.getMessage()).queue()
                     );
                 }
             }
