@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class KickAllVoiceMember implements ICommand {
     private ScheduledFuture<?> scheduledTask;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-ㅋ
+
     @Override
     public String getName() {
         return "outwith";

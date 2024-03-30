@@ -59,6 +59,7 @@ public class Main {
         manager.add(new Embed());
         manager.add(new Lotto());
         manager.add(new Sudoku());
+        manager.add(new PlayMusicCommand());
         shardManager.addEventListener(manager);
 
         EventListeners listeners = new EventListeners();
